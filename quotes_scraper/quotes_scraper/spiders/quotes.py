@@ -19,6 +19,11 @@ class QuotesSpider(scrapy.Spider):
                 },
             },
         },
+        'CONCURRENT_REQUESTS': 24,
+        'MEM_USAGE_LIMIT_MB': 2048,
+        'MEMUSAGE_NOTIFY_MAIL': ['test@example.com'],
+        'ROBOTSTXT_OBEY': True,
+        'USER_AGENT': 'Whatever',
     }
 
     def parse_quotes_only(self, response, **kwargs):
@@ -40,6 +45,11 @@ class QuotesSpider(scrapy.Spider):
         quotes = response.xpath("//span[@class='text' and @itemprop='text']/text()").getall()
         top_tags = response.xpath("//div[contains(@class, 'tags-box')]/span[@class='tag-item']/a/text()").getall()
 
+        yield {
+            'title': title,
+            'top_tags': top_tags,
+        }
+
         next_link = response.xpath("//ul[@class='pager']/li[@class='next']/a/@href").get()
         if next_link:
             yield response.follow(next_link, callback=self.parse_quotes_only, cb_kwargs={'quotes': quotes})
@@ -51,8 +61,4 @@ class QuotesSpider(scrapy.Spider):
             except ValueError as e:
                 raise ValueError("Argument limit_tag must be an integer")
             
-        yield {
-            'title': title,
-            'quotes': quotes,
-            'top_tags': top_tags,
-        }
+        
