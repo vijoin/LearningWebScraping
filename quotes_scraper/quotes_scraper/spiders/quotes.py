@@ -21,14 +21,31 @@ class QuotesSpider(scrapy.Spider):
         },
     }
 
+    def parse_quotes_only(self, response, **kwargs):
+        quotes = kwargs.get('quotes')
+        if quotes:
+            quotes.extend(response.xpath("//span[@class='text' and @itemprop='text']/text()").getall())
+        
+        next_link = response.xpath("//ul[@class='pager']/li[@class='next']/a/@href").get()
+        if next_link:
+            yield response.follow(next_link, callback=self.parse_quotes_only, cb_kwargs={'quotes': quotes})  
+        else:
+            yield {
+                'quotes': quotes
+            }
+
     def parse(self, response):
+
+        title = response.xpath("//h1/a/text()").get()
+        quotes = response.xpath("//span[@class='text' and @itemprop='text']/text()").getall()
+        top_ten_tags = response.xpath("//div[contains(@class, 'tags-box')]/span[@class='tag-item']/a/text()").getall()
 
         next_link = response.xpath("//ul[@class='pager']/li[@class='next']/a/@href").get()
         if next_link:
-            yield response.follow(next_link, callback=self.parse)
+            yield response.follow(next_link, callback=self.parse_quotes_only, cb_kwargs={'quotes': quotes})
 
         yield {
-            'title': response.xpath("//h1/a/text()").get(),
-            'quotes': response.xpath("//div[@class='quote']/span[@class='text' and @itemprop='text']/text()").getall(),
-            'top_ten_tags': response.xpath("//div[contains(@class, 'tags-box')]/span[@class='tag-item']/a/text()").getall(),
+            'title': title,
+            'quotes': quotes,
+            'top_ten_tags': top_ten_tags,
         }
