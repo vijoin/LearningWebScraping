@@ -1,12 +1,6 @@
 import scrapy
 
 
-# Get all links:
-## response.xpath('//ol[@class="row"]/li//h3/a/@href').getall()
-# Get Next page:
-## response.xpath('//ol[@class="row"]/li//h3/a/@href').getall()
-# and append page links to the list:
-# scrape all of the links
 class SpiderBookStore(scrapy.Spider):
     name = 'bookstore'
     start_urls = [
@@ -27,25 +21,10 @@ class SpiderBookStore(scrapy.Spider):
         },
         'CONCURRENT_REQUESTS': 24,
         'MEM_USAGE_LIMIT_MB': 2048,
-        'MEMUSAGE_NOTIFY_MAIL': ['test@example.com'],
+        'MEMUSAGE_NOTIFY_MAIL': ['vijoin@gmail.com'],
         'ROBOTSTXT_OBEY': True,
         'USER_AGENT': 'Whatever',
     }
-
-
-
-    # Get all links:
-    ## response.xpath('//ol[@class="row"]/li//h3/a/@href').getall()
-    # Get Next page:
-    ## response.xpath('//li[@class="next"]/a/@href').get()
-    
-    # and append page links to the list:
-    ## logic
-
-    # scrape all of the links
-    ## title response.xpath('//h1/text()').get()
-    ## price response.xpath('//th[contains(text(), "Price (incl. tax)")]/following-sibling::td/text()').get()
-    ## stock_available response.xpath('//th[contains(text(), "Availability")]/following-sibling::td/text()').get()
 
     def parse_book(self, response):
         title = response.xpath('//h1/text()').get()
